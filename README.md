@@ -91,7 +91,6 @@ In the Streamlit app, input a contract clause to view:
 - **Clause Classification:** For example, *“Audit Clause: Yes.”*
 - **Risk Assessment:** For example, *“Potential ambiguity in scope.”*
 
-Watch the demo video on GitHub.
 
 # Team
 
