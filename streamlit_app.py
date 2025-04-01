@@ -45,7 +45,7 @@ def run_risk_analysis_gemini(clause):
             f"Risk: [Second risk in one sentence with no extra spacing, highlighting a different legal or practical issue.]\n"
             f"Mitigation: [One mitigation in one sentence with no extra spacing, offering a clear and actionable solution.]\n"
             f"Ensure the risks and mitigation are directly relevant to the clause provided."
-    )
+        )
         response = gemini_model.generate_content(prompt)
         return response.text
     except Exception as e:
@@ -69,6 +69,10 @@ def classify_and_analyze_clause(clause):
 st.markdown(
     """
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+    body {
+        font-family: 'Roboto', sans-serif;
+    }
     /* Center title and instruction */
     h1 {
         text-align: center;
@@ -82,6 +86,8 @@ st.markdown(
     }
     /* Style chat bubbles */
     .stChatMessage {
+        background-color: #2a2a2a;
+        color: #e0e0e0;
         border-radius: 10px;
         padding: 15px;
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -90,7 +96,7 @@ st.markdown(
     }
     /* Style input box */
     .stTextInput > div > div > input {
-        border: 1px solid #1E3A8A;
+        border: 1px solid #00aaff;
         border-radius: 5px;
         box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         padding: 10px;
