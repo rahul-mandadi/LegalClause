@@ -1,84 +1,91 @@
 import streamlit as st
 import torch
-import openai
-from streamlit_chat import message
+import google.generativeai as genai
 from transformers import BertTokenizer, BertForSequenceClassification
+from streamlit_chat import message
 
+# Load API key from secrets (set in Streamlit secrets.toml or environment)
+try:
+    genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
+except KeyError:
+    st.error("Please set GOOGLE_API_KEY in Streamlit secrets or environment.")
+    st.stop()
 
-# Set up OpenAI API key
-openai.api_key = OPENAI_API_KEY
+# Load Legal-BERT model
+@st.cache_resource
+def load_model():
+    model = BertForSequenceClassification.from_pretrained("RahulMandadi/fine-tuned-legal-bert")
+    tokenizer = BertTokenizer.from_pretrained("RahulMandadi/fine-tuned-legal-bert")
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model.to(device)
+    return model, tokenizer, device
 
-# Load model from huggingface
-model = BertForSequenceClassification.from_pretrained("Prakarsha01/fine-tuned-legal-bert-v2")
-tokenizer = BertTokenizer.from_pretrained("Prakarsha01/fine-tuned-legal-bert-v2")
+model, tokenizer, device = load_model()
 
-#Use gpu if available
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model.to(device)
+# Class labels
+labels = ["Cap on Liability", "Audit Rights", "Insurance", "None"]
 
-# Function for classification of clause using Legal-BERT
+# Legal-BERT classification
 def classify_clause_legal_bert(text):
     inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512).to(device)
-    outputs = model(**inputs)
-    predictions = torch.argmax(outputs.logits, dim=-1)
-    return predictions.item()
+    with torch.no_grad():
+        outputs = model(**inputs)
+    logits = outputs.logits
+    probs = torch.softmax(logits, dim=-1)[0].cpu().numpy()
+    prediction = torch.argmax(logits, dim=-1).item()
+    return labels[prediction], probs[prediction]
 
-# Function to integrate the output of clause classificationa and risk analysis
-def run_gpt_integration(classification_label, risk_analysis, clause):
-    prompt = (
-        f"Here is a contract clause that has been classified as '{classification_label}':\n\n"
-        f"'{clause}'\n\n"
-        f"The potential risks identified in this clause are:\n{risk_analysis}\n\n"
-    )
-    response = openai.ChatCompletion.create(
-        model="gpt-4o",
-        messages=[
-            {"role": "system", "content": "You are a legal advisor. Please provide an integrated, cohesive explanation of this clause, its classification, and the identified risks. Provide the respone in the following template:"},
-            {"role": "user", "content": prompt}
-        ]
-    )
-    return response['choices'][0]['message']['content']
+# Gemini risk analysis
+def run_risk_analysis_gemini(clause):
+    try:
+        gemini_model = genai.GenerativeModel('gemini-1.5-flash')  # Verify model name
+        prompt = f"You are a legal advisor. Identify 2-3 key risks and 1 mitigation for this clause: '{clause}'"
+        response = gemini_model.generate_content(prompt)
+        return response.text
+    except Exception as e:
+        return f"Error analyzing clause: {str(e)}"
 
-def run_riskAnalysis(clause):
-    # Risk Analysis using GPT-4o
-    risk_template = "You are a legal advisor. Identify any potential risks in the clauses given to you."
-    prompt = clause
-    response = openai.ChatCompletion.create(
-        model="gpt-4o",
-        messages=[
-            {"role": "system", "content": risk_template},
-            {"role": "user", "content": prompt}
-        ]
-    )
-    return response['choices'][0]['message']['content']
-
-# Define a combined function
+# Combined analysis
 def classify_and_analyze_clause(clause):
-    classification_result = classify_clause_legal_bert(clause)
-    classification_label = "Audit Clause" if classification_result == 1 else "Not an Audit Clause"
-    risk_analysis = run_riskAnalysis(clause)
-    integrated_response = run_gpt_integration(classification_label, risk_analysis, clause)
-    return integrated_response
+    # Classify with Legal-BERT
+    bert_label, bert_conf = classify_clause_legal_bert(clause)
+    
+    # Risk analysis
+    risk_analysis = run_risk_analysis_gemini(clause)
+    
+    # Format response
+    response = (
+        f"### Clause Analysis\n\n"
+        f"**Input Clause**: '{clause}'\n\n"
+        f"#### Classification\n"
+        f"- **Legal-BERT**: {bert_label} (Confidence: {bert_conf:.2%})\n\n"
+        f"#### Risk Analysis (Gemini)\n{risk_analysis}"
+    )
+    return response
 
 # Streamlit app
-st.title("Contract Clause Classification and Risk Detection")
+st.title("LexCounsel: Contract Clause Analysis")
+
+# Instructions
+st.markdown("Enter a contract clause to classify it and assess risks using Legal-BERT and Gemini.")
 
 # Initialize chat history
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+# Display chat history
 if st.session_state.messages:
     for i, chat in enumerate(st.session_state.messages):
         message(chat['question'], is_user=True, key=f"user_{i}", avatar_style="big-smile")
         message(chat['answer'], key=f"bot_{i}")
 else:
-    st.markdown("No chat history yet. Start by entering a contract clause.")
+    st.markdown("No chat history yet. Start by entering a clause below.")
 
+# User input
 user_input = st.chat_input(placeholder="Enter a contract clause...")
 
 if user_input:
-    with st.spinner('Please wait while I analyise your clause for you...'):
+    with st.spinner('Analyzing your clause...'):
         response = classify_and_analyze_clause(user_input)
-    response = classify_and_analyze_clause(user_input)
-    st.session_state.messages.append({"question": user_input, "answer": "\n"+response})
-    st.experimental_rerun()
+    st.session_state.messages.append({"question": user_input, "answer": response})
+    st.rerun()
