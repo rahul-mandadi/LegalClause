@@ -105,9 +105,7 @@ In the Streamlit app, input a contract clause to view:
 3. Make your changes and test locally.
 4. Submit a pull request to `main`.
 
-# License
 
-[MIT License] *(to be confirmed)*
 
 # References
 
