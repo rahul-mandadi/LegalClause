@@ -112,7 +112,7 @@ st.markdown(
 
 # Streamlit app
 st.markdown(
-    "<h1>LexCounsel: Contract Clause Analysis</h1>",
+    "<h1>LegalClause: Contract Clause Analysis</h1>",
     unsafe_allow_html=True
 )
 st.markdown(
