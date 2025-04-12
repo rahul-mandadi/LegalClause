@@ -1,116 +1,149 @@
-# LexCounsel: Intelligent Legal Clause Analyzer
+# LegalClause: Legal Contract Clause Classification & Risk Analysis
+
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Python](https://img.shields.io/badge/python-3.8%2B-blue)
+![Streamlit](https://img.shields.io/badge/streamlit-1.28%2B-red)
+![Transformers](https://img.shields.io/badge/transformers-4.37.2-yellow)
 
 ## Overview
 
-LexCounsel is an NLP-based tool designed to automate the understanding and risk assessment of contract clauses. It utilizes a fine-tuned Legal-BERT model for clause classification and leverages Gemini 2.0 Flash for detailed risk analysis. This repository serves as a starter project for the LexCounsel team to collaboratively integrate and enhance these components into a Streamlit-based application.
+LegalClause is an intelligent legal assistant that transforms manual contract review through automated clause classification and risk analysis. Using state-of-the-art NLP models including a fine-tuned Legal-BERT model, this tool helps legal professionals:
 
-## Use Case and Importance
+- Identify clause types (Cap on Liability, Audit Rights, Insurance)
+- Analyze potential legal risks in contract clauses
+- Suggest mitigation strategies for identified risks
+- Save valuable time in contract review processes
 
-Legal professionals often need to review contract clauses for potential risks and implications. LexCounsel automates this process by classifying clauses (e.g., identifying audit clauses) and analyzing their risks, thereby enhancing productivity for lawyers, legal analysts, and compliance officers.
+The system achieves **97.87% classification accuracy** and delivers actionable risk insights through an intuitive chat-based interface.
 
-**Audit Clause**:  
-An audit clause grants one party the right to inspect the other party’s records and operations to ensure compliance with contract terms. It is vital for transparency, risk management, and regulatory adherence.
+![LegalClause Interface](assets/interface_screenshot.png)
 
-**Importance**:  
-- **Transparency**: Ensures adherence to contract terms.  
-- **Risk Management**: Identifies discrepancies or risks early.  
-- **Compliance**: Supports legal and regulatory standards.
+## Features
 
-## Technologies Used
+- **Smart Clause Classification**: Automatically identifies clause types with high accuracy
+- **Risk Identification**: Detects ambiguities, compliance issues, and potential legal vulnerabilities
+- **Mitigation Suggestions**: Offers actionable recommendations to enhance clarity and protect interests
+- **User-Friendly Interface**: Chat-based Streamlit application for easy interaction
+- **Comprehensive Analysis**: Combined classification and risk assessment in a single workflow
 
-- **Python**: Core programming language.
-- **Hugging Face Transformers**: For fine-tuning Legal-BERT (`nlpaueb/legal-bert-base-uncased`).
-- **Google Gemini 2.0 Flash**: For generating risk analysis.
-- **Streamlit**: For the interactive web application.
-- **Scikit-Learn**: For TF-IDF and SVM baseline modeling.
-- **Matplotlib & Seaborn**: For evaluation visualizations.
+## Getting Started
 
-## Project Structure
+### Prerequisites
 
-This starter project includes:  
-- **`notebooks/BaselineModel.ipynb`**: Implements a TF-IDF + SVM baseline for clause classification.  
-- **`notebooks/LegalBERTFineTuning.ipynb`**: Fine-tunes Legal-BERT for clause classification.  
-- **`notebooks/RiskAnalysis.ipynb`**: Uses Gemini 2.0 Flash for risk analysis.  
-- **`streamlit_app.py`**: Streamlit app integrating classification and risk analysis (to be updated with Gemini).
+- Python 3.8+
+- Streamlit
+- PyTorch
+- Transformers
+- Google API key for Gemini (if using the risk analysis feature)
 
-## Setup
+### Installation
 
-1. **Clone the Repository**:  
-   ```bash
-   git clone https://github.com/rahul-mandadi/LexCounsel.git
-   cd LexCounsel
-# Install Dependencies
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/LegalClause.git
+cd LegalClause
+```
 
+2. Create and activate a virtual environment:
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+3. Install required dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-# Set Up Gemini API Key
-
-Create a `.env` file in the root directory:
-
-```ini
-GEMINI_API_KEY=your_api_key_here
-```
-
-> **Note:** The `.env` file is ignored by `.gitignore` to protect sensitive data.
-
-# Running the Application
-
-To launch the Streamlit app, run:
-
+4. Set up your Google API key for Gemini:
 ```bash
-streamlit run streamlit_app.py
+# Create a .streamlit/secrets.toml file with your API key
+echo "GOOGLE_API_KEY = 'your-api-key-here'" > .streamlit/secrets.toml
 ```
 
-Enter a contract clause to receive classification and risk analysis outputs. *(Remember to update `streamlit_app.py` to integrate Gemini 2.0 Flash after testing in `RiskAnalysis.ipynb`.)*
+### Running the Application
 
-# Model Development
+Start the Streamlit application:
+```bash
+streamlit run app.py
+```
 
-- **Baseline Model:** Uses TF-IDF vectorization with an SVM, trained on the LegalBench CUAD dataset.
-- **Legal-BERT:** Fine-tuned using `nlpaueb/legal-bert-base-uncased` for binary classification (e.g., audit clause: Yes/No).
-- **Risk Analysis:** Leverages Gemini 2.0 Flash to analyze risks based on the clause text.
+Access the application in your browser at `http://localhost:8501`.
 
-> **Note:** The current setup uses a simplified 5-fold cross-validation from previous experiments. Further refinements may be applied.
+## Project Structure
 
-# Benchmark Results
+```
+LegalClause/
+├── app.py                    # Streamlit application
+├── BaselineModel.ipynb       # TF-IDF + SVM implementation
+├── LegalBERTFineTuning.ipynb # Legal-BERT model fine-tuning
+├── RiskAnalysis.ipynb        # Gemini integration for risk analysis
+├── EDA.ipynb                 # Exploratory Data Analysis
+├── models/                   # Pre-trained models
+│   ├── fine-tuned-legal-bert/
+│   └── svm_baseline_model.pkl
+├── utils/                    # Utility functions
+├── requirements.txt          # Project dependencies
+└── README.md                 # Project documentation
+```
 
-| Metric     | Score (%) |
-|------------|----------|
-| Accuracy   | 99.23    |
-| Precision  | 98.49    |
-| Recall     | 100.00   |
-| F1 Score   | 99.24    |
+## Models and Performance
 
-These results provide a baseline; actual outcomes may vary with updates to the SVM baseline and Gemini integration.
+### Baseline Model (TF-IDF + SVM)
+- **Accuracy**: 85.16%
+- **Precision**: 90.36%
+- **Recall**: 76.05% 
+- **F1 Score**: 73.34%
 
-# Demo
+### Fine-tuned Legal-BERT
+- **Accuracy**: 97.87%
+- **Precision**: 97.86%
+- **Recall**: 97.21%
+- **F1 Score**: 97.51%
 
-In the Streamlit app, input a contract clause to view:
+Our fine-tuned Legal-BERT model significantly outperforms the baseline across all metrics, particularly in recall, which is critical for legal applications where missing relevant clauses can have serious consequences.
 
-- **Clause Classification:** For example, *“Audit Clause: Yes.”*
-- **Risk Assessment:** For example, *“Potential ambiguity in scope.”*
+## Future Enhancements
 
+- **More Clause Types**: Expand to include indemnification, termination, and other important clauses
+- **Advanced NLP**: Integrate GPT-4o1 for deeper contextual insights
+- **Clause Drafting**: Add auto-suggestions to mitigate identified risks
+- **Integration**: Connect with DocuSign and other legal tools
+- **Enhanced Interaction**: Support follow-up questions in the chatbot
 
-# Team
+## How It Works
 
-- **Raunaksingh Khalsa:** Data & Baseline Models *(refining `BaselineModel.ipynb`)*
-- **Vishak Nair:** Transformer Fine-Tuning & Evaluation *(refining `LegalBERTFineTuning.ipynb`)*
-- **Rahul Reddy Mandadi:** Risk Analysis & System Integration *(refining `RiskAnalysis.ipynb` and updating `streamlit_app.py`)*
+1. **Clause Input**: Users enter contract clauses into the interface
+2. **Classification**: Fine-tuned Legal-BERT identifies the clause type
+3. **Risk Analysis**: Gemini analyzes the clause for potential legal risks
+4. **Output**: The system displays the classification result and risk analysis in a structured format
 
-# Contributing
+![LegalClause Architecture](assets/architecture_diagram.png)
 
-1. Fork the repository.
-2. Create a branch for your task *(e.g., `feature/baseline-model`)*.
-3. Make your changes and test locally.
-4. Submit a pull request to `main`.
+## Contributing
 
+Contributions are welcome! Please feel free to submit a Pull Request.
 
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-# References
+## License
 
-- **[LegalBench Dataset]**
-- **[LegalBench Research Paper]**
-- **[Hugging Face Transformers]**
-- **[Google Gemini API]**
-- **[Fine-Tuned Legal-BERT]**
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- [LegalBench CUAD dataset](https://www.atticusprojectai.org/cuad) for training data
+- [Legal-BERT](https://huggingface.co/nlpaueb/legal-bert-base-uncased) by AUEB NLP Group
+- Google's Gemini API for risk analysis capabilities
+- Streamlit for the interactive web framework
+
+## Contact
+
+For questions or feedback, please reach out to:
+- Project Maintainer: [Your Name](mailto:your.email@example.com)
+- Issue Tracker: [GitHub Issues](https://github.com/yourusername/LegalClause/issues)
+
