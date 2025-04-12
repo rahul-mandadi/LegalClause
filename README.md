@@ -16,7 +16,9 @@ LegalClause is an intelligent legal assistant that transforms manual contract re
 
 The system achieves **97.87% classification accuracy** and delivers actionable risk insights through an intuitive chat-based interface.
 
-![LegalClause Interface](assets/interface_screenshot.png)
+![LegalClause Interface](assets/interface.png)
+
+*Screenshot: LegalClause analyzing an insurance clause, identifying the clause type with Legal-BERT, and providing risk analysis with Gemini*
 
 ## Features
 
@@ -40,7 +42,7 @@ The system achieves **97.87% classification accuracy** and delivers actionable r
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/LegalClause.git
+git clone https://github.com/rahul-mandadi/LegalClause.git
 cd LegalClause
 ```
 
@@ -63,6 +65,8 @@ echo "GOOGLE_API_KEY = 'your-api-key-here'" > .streamlit/secrets.toml
 
 ### Running the Application
 
+The fine-tuned Legal-BERT model is hosted on Hugging Face at `RahulMandadi/fine-tuned-legal-bert` and is automatically loaded by the application.
+
 Start the Streamlit application:
 ```bash
 streamlit run app.py
@@ -74,15 +78,11 @@ Access the application in your browser at `http://localhost:8501`.
 
 ```
 LegalClause/
-├── app.py                    # Streamlit application
+├── app.py                    # Streamlit application with HuggingFace model integration
 ├── BaselineModel.ipynb       # TF-IDF + SVM implementation
 ├── LegalBERTFineTuning.ipynb # Legal-BERT model fine-tuning
 ├── RiskAnalysis.ipynb        # Gemini integration for risk analysis
 ├── EDA.ipynb                 # Exploratory Data Analysis
-├── models/                   # Pre-trained models
-│   ├── fine-tuned-legal-bert/
-│   └── svm_baseline_model.pkl
-├── utils/                    # Utility functions
 ├── requirements.txt          # Project dependencies
 └── README.md                 # Project documentation
 ```
@@ -101,7 +101,7 @@ LegalClause/
 - **Recall**: 97.21%
 - **F1 Score**: 97.51%
 
-Our fine-tuned Legal-BERT model significantly outperforms the baseline across all metrics, particularly in recall, which is critical for legal applications where missing relevant clauses can have serious consequences.
+The fine-tuned Legal-BERT model is hosted on HuggingFace at `RahulMandadi/fine-tuned-legal-bert` and can be accessed directly via the Transformers library. It significantly outperforms the baseline across all metrics, particularly in recall, which is critical for legal applications where missing relevant clauses can have serious consequences.
 
 ## Future Enhancements
 
@@ -113,26 +113,14 @@ Our fine-tuned Legal-BERT model significantly outperforms the baseline across al
 
 ## How It Works
 
-1. **Clause Input**: Users enter contract clauses into the interface
-2. **Classification**: Fine-tuned Legal-BERT identifies the clause type
-3. **Risk Analysis**: Gemini analyzes the clause for potential legal risks
-4. **Output**: The system displays the classification result and risk analysis in a structured format
-
-![LegalClause Architecture](assets/architecture_diagram.png)
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+1. **Clause Input**: Users enter contract clauses into the Streamlit chat interface
+2. **Classification**: The application loads the fine-tuned Legal-BERT model from HuggingFace (`RahulMandadi/fine-tuned-legal-bert`) to identify the clause type
+3. **Risk Analysis**: Google's Gemini 2.0 Flash API (`gemini-2.0-flash-thinking-exp-01-21`) analyzes the clause for potential legal risks
+4. **Output**: The system displays the classification result and risk analysis in a structured format with markdown formatting
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Acknowledgments
 
@@ -140,10 +128,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Legal-BERT](https://huggingface.co/nlpaueb/legal-bert-base-uncased) by AUEB NLP Group
 - Google's Gemini API for risk analysis capabilities
 - Streamlit for the interactive web framework
-
-## Contact
-
-For questions or feedback, please reach out to:
-- Project Maintainer: [Your Name](mailto:your.email@example.com)
-- Issue Tracker: [GitHub Issues](https://github.com/yourusername/LegalClause/issues)
-
